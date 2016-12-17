@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Neural\Net.cs" />
+    <Compile Include="Neural\Neuron.cs" />
     <Compile Include="PixelTestForm.cs">
       <SubType>Form</SubType>
     </Compile>
