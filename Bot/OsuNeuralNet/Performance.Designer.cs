@@ -40,6 +40,7 @@
             this.numericUpDownH = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownX = new System.Windows.Forms.NumericUpDown();
             this.LabelTime = new System.Windows.Forms.Label();
+            this.PanelSubscreen = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownY)).BeginInit();
@@ -53,6 +54,7 @@
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.PanelSubscreen, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -192,6 +194,15 @@
             this.LabelTime.TabIndex = 13;
             this.LabelTime.Text = "Calculate Time";
             // 
+            // PanelSubscreen
+            // 
+            this.PanelSubscreen.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.PanelSubscreen.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PanelSubscreen.Location = new System.Drawing.Point(3, 133);
+            this.PanelSubscreen.Name = "PanelSubscreen";
+            this.PanelSubscreen.Size = new System.Drawing.Size(278, 125);
+            this.PanelSubscreen.TabIndex = 1;
+            // 
             // Performance
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -225,5 +236,6 @@
         private System.Windows.Forms.NumericUpDown numericUpDownH;
         private System.Windows.Forms.NumericUpDown numericUpDownX;
         private System.Windows.Forms.Label LabelTime;
+        private System.Windows.Forms.Panel PanelSubscreen;
     }
 }

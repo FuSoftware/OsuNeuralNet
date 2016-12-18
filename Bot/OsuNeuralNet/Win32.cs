@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -87,5 +88,20 @@ sealed class Win32
             mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
         
+    }
+
+    public static List<Color> getColors(int x = 0, int y = 0, int h = 1600, int w = 900)
+    {
+        List<Color> c = new List<Color>();
+
+        for (int i = 0; i < w; i++)
+        {
+            for (int j = 0; j < h; j++)
+            {
+                c.Add(GetColorAt(new Point(j + x, i + y)));
+            }
+        }
+
+        return c;
     }
 }
