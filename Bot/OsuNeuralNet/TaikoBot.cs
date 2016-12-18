@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace OsuNeuralNet
 {
-    public partial class PixelTestForm : Form
+    public partial class TaikoBot : Form
     {
         enum Inputs
         {
@@ -24,7 +24,7 @@ namespace OsuNeuralNet
         private Inputs lastInput;
         private Keys lastKey;
 
-        public PixelTestForm()
+        public TaikoBot()
         {
             InitializeComponent();
             StartThread();
