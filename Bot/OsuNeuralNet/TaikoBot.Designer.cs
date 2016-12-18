@@ -1,6 +1,6 @@
 ﻿namespace OsuNeuralNet
 {
-    partial class Taiko
+    partial class TaikoBot
     {
         /// <summary>
         /// Required designer variable.
