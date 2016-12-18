@@ -1,6 +1,6 @@
 ﻿namespace OsuNeuralNet
 {
-    partial class PixelTestForm
+    partial class Taiko
     {
         /// <summary>
         /// Required designer variable.

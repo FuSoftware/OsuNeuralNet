@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace OsuNeuralNet
 {
-    public partial class PixelTestForm : Form
+    public partial class Taiko : Form
     {
         enum Inputs
         {
@@ -24,7 +24,7 @@ namespace OsuNeuralNet
         private Inputs lastInput;
         private Keys lastKey;
 
-        public PixelTestForm()
+        public Taiko()
         {
             InitializeComponent();
             StartThread();
@@ -72,6 +72,7 @@ namespace OsuNeuralNet
                     UpdatePanelColor(c); // runs on UI thread
                 });
                 */
+                
 
                 if (cCheck.R == 0 && cCheck.G == 0 && cCheck.B == 0)
                 {
@@ -113,7 +114,7 @@ namespace OsuNeuralNet
                     else
                     {
                         lastInput = Inputs.INPUT_NONE;
-                        Thread.Sleep(10);
+                        //Thread.Sleep(10);
                         this.Invoke((MethodInvoker)delegate {
                             this.panelLastKey.BackColor = Color.Gray;
                         });
@@ -170,7 +171,7 @@ namespace OsuNeuralNet
         public void PressKey(Keys key)
         {
             Win32.PressKey(key, false);
-            Thread.Sleep(10);
+            Thread.Sleep(20);
             Win32.PressKey(key, true);
             lastKey = key;
         }
