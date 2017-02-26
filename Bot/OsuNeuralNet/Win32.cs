@@ -30,7 +30,6 @@ sealed class Win32
     [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
     public static extern int BitBlt(IntPtr hDC, int x, int y, int nWidth, int nHeight, IntPtr hSrcDC, int xSrc, int ySrc, int dwRop);
 
-    
     static public Color GetColorAt(Point location)
     {
         Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
@@ -65,31 +64,6 @@ sealed class Win32
         }
     }
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-    public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
-
-    private const int MOUSEEVENTF_LEFTDOWN = 0x02;
-    private const int MOUSEEVENTF_LEFTUP = 0x04;
-    private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
-    private const int MOUSEEVENTF_RIGHTUP = 0x10;
-
-    public static void DoMouseClick(bool left)
-    {
-        //Call the imported function with the cursor's current position
-        uint X = (uint)Cursor.Position.X;
-        uint Y = (uint)Cursor.Position.Y;
-
-        if(left)
-        {
-            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-        }
-        else
-        {
-            mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
-        }
-        
-    }
-
     public static List<Color> getColors(int x = 0, int y = 0, int h = 1600, int w = 900)
     {
         List<Color> c = new List<Color>();
@@ -103,5 +77,44 @@ sealed class Win32
         }
 
         return c;
+    }
+
+    [Flags]
+    private enum KeyStates
+    {
+        None = 0,
+        Down = 1,
+        Toggled = 2
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    private static extern short GetKeyState(int keyCode);
+
+    private static KeyStates GetKeyState(Keys key)
+    {
+        KeyStates state = KeyStates.None;
+
+        short retVal = GetKeyState((int)key);
+
+        //If the high-order bit is 1, the key is down
+        //otherwise, it is up.
+        if ((retVal & 0x8000) == 0x8000)
+            state |= KeyStates.Down;
+
+        //If the low-order bit is 1, the key is toggled.
+        if ((retVal & 1) == 1)
+            state |= KeyStates.Toggled;
+
+        return state;
+    }
+
+    public static bool IsKeyDown(Keys key)
+    {
+        return KeyStates.Down == (GetKeyState(key) & KeyStates.Down);
+    }
+
+    public static bool IsKeyToggled(Keys key)
+    {
+        return KeyStates.Toggled == (GetKeyState(key) & KeyStates.Toggled);
     }
 }

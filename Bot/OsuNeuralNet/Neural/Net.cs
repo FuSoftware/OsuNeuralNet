@@ -123,5 +123,24 @@ namespace OsuNeuralNet.Neural
         {
             return this.m_recentAverageError;
         }
+
+        public List<double> getWeights()
+        {
+            List<double> weights = new List<double>();
+            foreach (Layer l in m_layers)
+            {
+                foreach (Neuron n in l)
+                {
+                    weights.Add(n.getOutputVal());
+                }
+            }
+
+            return weights;
+        }
+
+        public void setWeights(List<double> weights)
+        {
+
+        }
     }
 }

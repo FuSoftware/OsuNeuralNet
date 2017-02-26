@@ -21,8 +21,8 @@ namespace OsuNeuralNet.Neural
         int m_myIndex;
         double m_gradient;
 
-        static double alpha; //[0.0..1.0] overall net training rate
-        static double eta; //[0.0..n] multiplier of last weight charge (momentum)
+        static double alpha = 0.0; //[0.0..1.0] overall net training rate
+        static double eta = 0.0; //[0.0..n] multiplier of last weight charge (momentum)
 
         public Neuron(int numOutputs, int myIndex)
         {
@@ -34,6 +34,16 @@ namespace OsuNeuralNet.Neural
             }
 
             m_myIndex = myIndex;
+        }
+
+        public List<double> getWeights()
+        {
+            List<double> weights = new List<double>();
+            foreach (Connection c in m_outputWeights)
+            {
+                weights.Add(c.weight);
+            }
+            return weights;
         }
 
         public void setOutputVal(double val)

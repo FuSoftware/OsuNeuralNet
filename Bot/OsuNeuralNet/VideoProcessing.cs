@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,23 +12,81 @@ namespace OsuNeuralNet
 {
     class VideoProcessing
     {
+        public Bitmap lastFrameTaiko;
+        public List<Bitmap> lastFrames = new List<Bitmap>();
+
+        public VideoProcessing()
+        {
+            
+        }
+
+        public void StartThreadedGeneration()
+        {
+            Thread t = new Thread(new ThreadStart((MethodInvoker)delegate
+                {
+                    while (Thread.CurrentThread.IsAlive)
+                    {
+                        try
+                        {
+                            lastFrames.Add(getBitmap(0, 0, 500, 500));
+
+                            if(lastFrames.Count > 4)
+                            {
+                                lastFrames.First().Dispose();
+                                lastFrames.Remove(lastFrames.First());
+                            }
+                                
+                        }
+                        catch(Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                        
+                        Thread.Sleep(20);
+                    }
+                }));
+            t.Start();
+        }
+
+
+        public void StartTaikoGeneration()
+        {
+            Thread t = new Thread(ThreadedGeneration);
+            t.Start();
+        }
+
+        private void ThreadedGeneration()
+        {
+            while(Thread.CurrentThread.IsAlive)
+            {
+                GenerateBitmap();
+                Thread.Sleep(5);
+            }
+        }
+
+        private void GenerateBitmap()
+        {
+            Bitmap bmp = getBitmap(208, 264, 1600 - 208, 470 - 264);
+            Bitmap resized = new Bitmap(bmp, new Size(50, 25));
+
+            //Bitmap previous = lastFrameTaiko;
+            lastFrameTaiko = new Bitmap(resized, new Size(200, 50));
+
+            resized.Dispose();
+            bmp.Dispose();
+        }
+
         public static Bitmap getBitmap(int x, int y, int w, int h)
         {
             //Create a new bitmap.
-            var bmpScreenshot = new Bitmap(w,
-                                           h,
-                                           PixelFormat.Format32bppArgb);
+            var bmpScreenshot = new Bitmap(w,h,PixelFormat.Format32bppArgb);
 
             // Create a graphics object from the bitmap.
             var gfxScreenshot = Graphics.FromImage(bmpScreenshot);
 
             // Take the screenshot from the upper left corner to the right bottom corner.
-            gfxScreenshot.CopyFromScreen(x,
-                                            y,
-                                            0,
-                                            0,
-                                            Screen.PrimaryScreen.Bounds.Size,
-                                            CopyPixelOperation.SourceCopy);
+            gfxScreenshot.CopyFromScreen(x,y,0, 0,Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
+            gfxScreenshot.Dispose();
             return bmpScreenshot;
         }
 
@@ -85,6 +144,15 @@ namespace OsuNeuralNet
             }
 
             return d;
+        }
+
+        public static List<double> GetInputsTaiko()
+        {
+            Bitmap bmp = getBitmap(208, 264, 1600 - 208, 470 - 264);
+            bmp = new Bitmap(bmp, new Size(100, 50));
+
+            List<Color> colors = getColors(bmp);
+            return GetInputsFromColor(colors);            
         }
     }
 }
