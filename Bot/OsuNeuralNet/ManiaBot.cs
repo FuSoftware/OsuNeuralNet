@@ -43,11 +43,12 @@ namespace OsuNeuralNet
 
         public bool isManiaRunning()
         {
-            Color c = Win32.GetPixelColor(250, 250);
+            //Color c = Win32.GetPixelColor(250, 250);
+            Color c = Win32.GetPixelColor(595, 1024);
 
             //Console.WriteLine(c.R + " " + c.G + " " + c.B);
 
-            return (c.R == 127 && c.G == 127 && c.B == 127);
+            return (c.R > 250 && c.G > 250 && c.B > 250);
         }
 
         public void ProcessPixel(int x, int y, int r, int g, int b, int key, int delay)
@@ -68,8 +69,7 @@ namespace OsuNeuralNet
                     //Key
                     if(c.R < 250 && c.G < 250 && c.B < 250)
                         SendKeyToggle(key, (c.R > r || c.G > g || c.B > b), delay);
-
-                    sw.Stop();
+                    
                     
                     Invoke((MethodInvoker)delegate
                     {
@@ -93,9 +93,9 @@ namespace OsuNeuralNet
                                 break;
                         }
                     });
-                    
 
-                    
+                    sw.Stop();
+
                     t = (int)sw.ElapsedMilliseconds;
                 }
                 else
@@ -109,8 +109,8 @@ namespace OsuNeuralNet
 
         public void GetPixelColor()
         {
-            int l = 1;
-            int d = 725;
+            int l = 10;
+            int d = 725; //ms delay
 
             isKeyPressed = new bool[4] { false, false, false, false };
             isKeyPressing = new bool[4] { false, false, false, false };
@@ -119,11 +119,18 @@ namespace OsuNeuralNet
             timer = new Stopwatch();
             timer.Start();
 
-            // Threads
+            // Threads 1600*900
+            /*
             Thread t1 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(280, 50, l, l, l, 0, d); }));
             Thread t2 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(335, 50, l, 0, l, 1, d); }));
             Thread t3 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(390, 50, l, 0, l, 2, d); }));
             Thread t4 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(445, 50, l, l, l, 3, d); }));
+            */
+
+            Thread t1 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(320, 50, l, l, l, 0, d); }));
+            Thread t2 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(390, 50, l, l, l, 1, d); }));
+            Thread t3 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(460, 50, l, l, l, 2, d); }));
+            Thread t4 = new Thread(new ThreadStart((MethodInvoker)delegate { ProcessPixel(530, 50, l, l, l, 3, d); }));
 
             t1.Start();
             t2.Start();
@@ -138,13 +145,15 @@ namespace OsuNeuralNet
                 if (_running)
                 {
                     this.Invoke((MethodInvoker)delegate {
-                        this.labelRunning.Text = "Mania Running";
+                        if (this.labelRunning.Text != "Mania Running")
+                            this.labelRunning.Text = "Mania Running";
                     });
                 }
                 else
                 {
                     this.Invoke((MethodInvoker)delegate {
-                        this.labelRunning.Text = "Mania Idle";
+                        if(this.labelRunning.Text != "Mania Idle")
+                            this.labelRunning.Text = "Mania Idle";
                     });
                 }
             }
@@ -165,6 +174,7 @@ namespace OsuNeuralNet
                 c = Color.Red;
             }
 
+            /*
             Invoke((MethodInvoker)delegate
             {
                 switch (key)
@@ -183,6 +193,7 @@ namespace OsuNeuralNet
                         break;
                 }
             });
+            */
         }
 
         private void SendKeyToggle(int line, bool isPressed, int delay = 0)

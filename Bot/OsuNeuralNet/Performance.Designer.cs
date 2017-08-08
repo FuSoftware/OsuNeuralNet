@@ -135,7 +135,6 @@
             this.Calculate.TabIndex = 8;
             this.Calculate.Text = "Calculer";
             this.Calculate.UseVisualStyleBackColor = true;
-            this.Calculate.Click += new System.EventHandler(this.Calculate_Click);
             // 
             // numericUpDownY
             // 

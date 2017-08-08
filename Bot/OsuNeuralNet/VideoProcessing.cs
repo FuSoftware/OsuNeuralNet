@@ -12,124 +12,101 @@ namespace OsuNeuralNet
 {
     class VideoProcessing
     {
-        public Bitmap lastFrameTaiko;
-        public List<Bitmap> lastFrames = new List<Bitmap>();
+        public class ThreadInfo
+        {
+            public int Index { get; set; }
+        }
+
+        public Color[] Colors;
+        int[][] pixels;
+
+        bool Run = false;
+        bool isLocked = false;
+
+        public struct RGB
+        {
+            public int R, G, B;
+            public RGB(Color c)
+            {
+                this.R = c.R;
+                this.G = c.G;
+                this.B = c.B;
+            }
+
+            public RGB(int R, int G, int B)
+            {
+                this.R = R;
+                this.G = G;
+                this.B = B;
+            }
+        }
 
         public VideoProcessing()
         {
             
         }
 
-        public void StartThreadedGeneration()
+        public void Start(int[][] pixels)
         {
-            Thread t = new Thread(new ThreadStart((MethodInvoker)delegate
-                {
-                    while (Thread.CurrentThread.IsAlive)
-                    {
-                        try
-                        {
-                            lastFrames.Add(getBitmap(0, 0, 500, 500));
+            if (pixels == null)
+                throw new ArgumentException("Empty pixel array", "pixels");
 
-                            if(lastFrames.Count > 4)
-                            {
-                                lastFrames.First().Dispose();
-                                lastFrames.Remove(lastFrames.First());
-                            }
-                                
-                        }
-                        catch(Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                        }
-                        
-                        Thread.Sleep(20);
-                    }
-                }));
-            t.Start();
-        }
+            this.pixels = pixels;
+            Run = true;
 
+            Colors = new Color[pixels.Length];
 
-        public void StartTaikoGeneration()
-        {
-            Thread t = new Thread(ThreadedGeneration);
-            t.Start();
-        }
-
-        private void ThreadedGeneration()
-        {
-            while(Thread.CurrentThread.IsAlive)
+            for(int i=0;i<Colors.Length;i++)
             {
-                GenerateBitmap();
-                Thread.Sleep(5);
-            }
+                Thread t = new Thread(Process);
+                ThreadInfo ti = new ThreadInfo();
+                ti.Index = i;
+                t.Start(ti);
+            }          
         }
 
-        private void GenerateBitmap()
+        public void Process(object a)
         {
-            Bitmap bmp = getBitmap(208, 264, 1600 - 208, 470 - 264);
-            Bitmap resized = new Bitmap(bmp, new Size(50, 25));
-
-            //Bitmap previous = lastFrameTaiko;
-            lastFrameTaiko = new Bitmap(resized, new Size(200, 50));
-
-            resized.Dispose();
-            bmp.Dispose();
-        }
-
-        public static Bitmap getBitmap(int x, int y, int w, int h)
-        {
-            //Create a new bitmap.
-            var bmpScreenshot = new Bitmap(w,h,PixelFormat.Format32bppArgb);
-
-            // Create a graphics object from the bitmap.
-            var gfxScreenshot = Graphics.FromImage(bmpScreenshot);
-
-            // Take the screenshot from the upper left corner to the right bottom corner.
-            gfxScreenshot.CopyFromScreen(x,y,0, 0,Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
-            gfxScreenshot.Dispose();
-            return bmpScreenshot;
-        }
-
-        public static List<Color> getColors(Bitmap bmp)
-        {
-            List<Color> c = new List<Color>();
-
-            for (int i = 0; i < bmp.Width; i++)
+            ThreadInfo t = (ThreadInfo)a;
+            int index = t.Index;
+            while (Run)
             {
-                for (int j = 0; j < bmp.Height; j++)
+                if (!isLocked)
                 {
-                    c.Add(bmp.GetPixel(i, j));
+                    IntPtr hdc = Win32.GetDC(IntPtr.Zero);
+                    Colors[index] = Win32.GetPixelColor(this.pixels[index][0], this.pixels[index][1]);
+                    Win32.ReleaseDC(IntPtr.Zero, hdc);
                 }
+                Thread.Sleep(1);
             }
+        }
+
+        public void Stop()
+        {
+            Run = false;
+        }
+
+        public void Lock()
+        {
+            isLocked = true;
+        }
+
+        public void UnLock()
+        {
+            isLocked = false;
+        }
+
+        public List<RGB> GetPixels()
+        {
+            Lock();
+            List<RGB> c = new List<RGB>();
+            for (int i=0;i< Colors.Length;i++)
+            {
+                c.Add(new RGB(Colors[i]));
+            }
+            UnLock();
 
             return c;
-        }
-
-        public static List<Color> getColors(int x, int y, int w, int h)
-        {
-            return getColors( getBitmap(x, y, w, h));
-        }
-
-        public static Bitmap ResizeBitmap(int width, int height, Bitmap image)
-        {
-            // uncomment for higher quality output
-            //graph.InterpolationMode = InterpolationMode.High;
-            //graph.CompositingQuality = CompositingQuality.HighQuality;
-            //graph.SmoothingMode = SmoothingMode.AntiAlias;
-
-            float scale = Math.Min(width / image.Width, height / image.Height);
-            var brush = new SolidBrush(Color.Black);
-
-            var bmp = new Bitmap((int)width, (int)height);
-            var graph = Graphics.FromImage(bmp);
-
-            var scaleWidth = (int)(image.Width * scale);
-            var scaleHeight = (int)(image.Height * scale);
-
-            graph.FillRectangle(brush, new RectangleF(0, 0, width, height));
-            graph.DrawImage(image, new Rectangle(((int)width - scaleWidth) / 2, ((int)height - scaleHeight) / 2, scaleWidth, scaleHeight));
-
-            return bmp;
         }
 
         public static List<double> GetInputsFromColor(List<Color> colors)
@@ -144,15 +121,6 @@ namespace OsuNeuralNet
             }
 
             return d;
-        }
-
-        public static List<double> GetInputsTaiko()
-        {
-            Bitmap bmp = getBitmap(208, 264, 1600 - 208, 470 - 264);
-            bmp = new Bitmap(bmp, new Size(100, 50));
-
-            List<Color> colors = getColors(bmp);
-            return GetInputsFromColor(colors);            
         }
     }
 }

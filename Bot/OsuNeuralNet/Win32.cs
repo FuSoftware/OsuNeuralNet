@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -8,15 +9,24 @@ using System.Windows.Forms;
 sealed class Win32
 {
     [DllImport("user32.dll")]
-    static extern IntPtr GetDC(IntPtr hwnd);
+    public static extern IntPtr GetDC(IntPtr hwnd);
 
     [DllImport("user32.dll")]
-    static extern Int32 ReleaseDC(IntPtr hwnd, IntPtr hdc);
+    public static extern Int32 ReleaseDC(IntPtr hwnd, IntPtr hdc);
 
     [DllImport("gdi32.dll")]
     static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
 
-    static public System.Drawing.Color GetPixelColor(int x, int y)
+    static public Color GetPixelColor(IntPtr hdc, int x, int y)
+    {
+        uint pixel = GetPixel(hdc, x, y);
+        Color color = Color.FromArgb((int)(pixel & 0x000000FF),
+                     (int)(pixel & 0x0000FF00) >> 8,
+                     (int)(pixel & 0x00FF0000) >> 16);
+        return color;
+    }
+
+    static public Color GetPixelColor(int x, int y)
     {
         IntPtr hdc = GetDC(IntPtr.Zero);
         uint pixel = GetPixel(hdc, x, y);
@@ -30,9 +40,9 @@ sealed class Win32
     [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
     public static extern int BitBlt(IntPtr hDC, int x, int y, int nWidth, int nHeight, IntPtr hSrcDC, int xSrc, int ySrc, int dwRop);
 
+    static Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
     static public Color GetColorAt(Point location)
     {
-        Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
         using (Graphics gdest = Graphics.FromImage(screenPixel))
         {
             using (Graphics gsrc = Graphics.FromHwnd(IntPtr.Zero))
@@ -44,8 +54,13 @@ sealed class Win32
                 gsrc.ReleaseHdc();
             }
         }
-
         return screenPixel.GetPixel(0, 0);
+    }
+
+    static public Color GetColorAt(IntPtr dc, int x, int y)
+    {
+        int a = (int)GetPixel(dc, x, y);
+        return Color.FromArgb((int)(a | 0xFF000000));
     }
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -116,5 +131,21 @@ sealed class Win32
     public static bool IsKeyToggled(Keys key)
     {
         return KeyStates.Toggled == (GetKeyState(key) & KeyStates.Toggled);
+    }
+
+    static uint WM_KEYDOWN = 0x0100;
+    static uint WM_KEYUP = 0x0101;
+    static int VK_S = 0x53;
+    static int VK_D = 0x44;
+    static int VK_L = 0x4C;
+    static int VK_M = 0x4D;
+
+    [DllImport("user32.dll")]
+    static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, int wParam, int lParam);
+
+    static void SendKey(string process, int key, uint action)
+    {
+        Process p = Process.GetProcessesByName(process)[0];
+        PostMessage(p.MainWindowHandle, action, key, 0);
     }
 }

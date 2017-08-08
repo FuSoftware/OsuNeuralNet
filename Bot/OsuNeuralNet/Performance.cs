@@ -31,13 +31,9 @@ namespace OsuNeuralNet
             myThread.Start();
         }
 
-        private void Calculate_Click(object sender, EventArgs e)
-        {
-            PerformanceCopyFromScreen();
-        }
-
         private void RunPerformance()
         {
+            /*
             vp = new VideoProcessing();
             vp.StartTaikoGeneration(); 
             
@@ -46,6 +42,7 @@ namespace OsuNeuralNet
                 PerformanceCopyFromScreen();
                 Thread.Sleep(1000);
             }
+            */
             
         }
 
@@ -63,28 +60,6 @@ namespace OsuNeuralNet
 
             LabelTime.Text = "Processed " + w * h + " pixels in " + watch.ElapsedMilliseconds + " ms";
             watch.Stop();
-        }
-
-        private void PerformanceCopyFromScreen()
-        {
-            /*
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-
-            Bitmap bmp = VideoProcessing.getBitmap(208, 264, 1600 - 208, 470 - 264);
-            bmp = new Bitmap(bmp, new Size(100,50));
-
-            List<Color> colors = VideoProcessing.getColors(bmp);
-            List<double> inputs = VideoProcessing.GetInputsFromColor(colors);
-
-            watch.Stop();
-            */
-
-            this.Invoke((MethodInvoker)delegate {
-                //LabelTime.Text = "Processed " + inputs.Count + " inputs in " + watch.ElapsedMilliseconds + " ms";
-                PanelSubscreen.BackgroundImage = vp.lastFrameTaiko;
-            });
-           
         }
     }
 }

@@ -16,7 +16,7 @@ namespace OsuNeuralNet
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ManiaBot());
+            Application.Run(new TaikoBotForm());
         }
     }
 }

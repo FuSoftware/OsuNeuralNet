@@ -1,6 +1,6 @@
 ﻿namespace OsuNeuralNet
 {
-    partial class TaikoBot
+    partial class TaikoBotForm
     {
         /// <summary>
         /// Required designer variable.
@@ -41,6 +41,7 @@
             this.LabelRunning = new System.Windows.Forms.Label();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panelLastKey = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -150,6 +151,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.Controls.Add(this.LabelRunning, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.button1, 1, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -190,13 +192,23 @@
             this.panelLastKey.Size = new System.Drawing.Size(133, 109);
             this.panelLastKey.TabIndex = 1;
             // 
-            // PixelTestForm
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(142, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 8);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // TaikoBot
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Name = "PixelTestForm";
+            this.Name = "TaikoBot";
             this.Text = "Form1";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
@@ -223,6 +235,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.Panel panelLastKey;
+        private System.Windows.Forms.Button button1;
     }
 }
 
