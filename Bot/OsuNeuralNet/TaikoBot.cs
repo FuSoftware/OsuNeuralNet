@@ -30,9 +30,9 @@ namespace OsuNeuralNet
         List<Latency> LatencyList = new List<Latency>();
         List<long> NoteList = new List<long>();
         long lastTime = 0;
-        bool UpdatePanels = false;
+        bool UpdatePanels = true;
 
-        VideoProcessing v;
+        PixelScanner scanner = new PixelScanner(1920,1080);
 
         Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
 
@@ -77,10 +77,31 @@ namespace OsuNeuralNet
             public Color c { get; set; }
         }
 
+        //Pixels
+        Point pScan = new Point(390,412);
+        Point pScanBis = new Point(380, 412);
+
+
+        Point pSpinner = new Point(0,0);
+        Point pCheck = new Point(1880, 574);
+
+        Point pSlow0 = new Point(925, 1058);
+        Point pSlow1 = new Point(900, 1058);
+
+        Point pFast0 = new Point(1000, 1058);
+        Point pFast1 = new Point(1025, 1058);
+
         /* Code */
         public TaikoBot()
         {
-            v = new VideoProcessing();
+            //Init Video Processing
+            this.scanner.AddCoordinates(pScan);
+            this.scanner.AddCoordinates(pScanBis);
+            this.scanner.AddCoordinates(pCheck);
+
+
+            this.scanner.Start();
+
             StartThread();
             lastInput = Inputs.INPUT_NONE;
         }
@@ -107,23 +128,8 @@ namespace OsuNeuralNet
 
         public void StartThread()
         {
-            /*
-            int[][] pixels = new int[2][];
-            pixels[0] = new int[2] { 390,412 };
-            pixels[1] = new int[2] { 1880,574 };
-            v.Start(pixels);
-            */
-
-            // Déclaration du thread
             Thread myThread;
-
-            // Instanciation du thread, on spécifie dans le 
-            // délégué ThreadStart le nom de la méthode qui
-            // sera exécutée lorsque l'on appele la méthode
-            // Start() de notre thread.
             myThread = new Thread(new ThreadStart(GetPixelColor));
-
-            // Lancement du thread
             myThread.Start();
         }
 
@@ -168,43 +174,12 @@ namespace OsuNeuralNet
 
             while (Thread.CurrentThread.IsAlive)
             {
-                //LatencyList.Add(new Latency(swScan.ElapsedMilliseconds, swProcess.ElapsedMilliseconds, swLoop.ElapsedMilliseconds));
-                //Thread.Sleep(1);
-
-                //1280*1024
-                /*
-                Color c = Win32.GetPixelColor(-390, -412);
-                Color cCheck = Win32.GetPixelColor(1880, 574);
-                Color cSpinner = Color.White;//Win32.GetPixelColor(500, 600);
-                */
-
-
-                //1600*900
-                /*
-                Color c = Win32.GetPixelColor(300, 358);
-                Color cCheck = Win32.GetPixelColor(194, 476);
-                Color cSpinner = Win32.GetPixelColor(500, 600);
-                */
-
-
-                //1920*1080
+                //LatencyList.Add(new Latency(swScan.ElapsedMilliseconds, swProcess.ElapsedMilliseconds, swLoop.ElapsedMilliseconds));                
                 
-                IntPtr hdc = Win32.GetDC(IntPtr.Zero);
-                Color c = Win32.GetPixelColor(hdc, 390, 412);
-                Color cCheck = Win32.GetPixelColor(hdc, 1880, 574);
-                Color cSpinner = Color.White;//Win32.GetPixelColor(500, 600);
-                Win32.ReleaseDC(IntPtr.Zero, hdc);
-                
-
-                //800*600 Top Left
-                //Color c = Win32.GetPixelColor(200, 265);
-                //Color cCheck = Win32.GetPixelColor(147, 343);
-                /*
-                List<RGB> Pixels = v.GetPixels();
-                RGB c;
-                RGB cCheck;
-                */
-
+                Color c = scanner.GetPixel(0);
+                Color cb = scanner.GetPixel(1);
+                Color cCheck = scanner.GetPixel(2);
+                Color cSpinner = Color.White;
 
                 if (UpdatePanels)
                 {
@@ -217,10 +192,10 @@ namespace OsuNeuralNet
                 {
                     //Update the label
                     TaikoStateUpdatedEventArgs TaikoState = new TaikoStateUpdatedEventArgs();
-                    TaikoState.State = "Taiko Running";
+                    TaikoState.State = "Taiko Running (" + Math.Round(scanner.GetAverageLatency(),2) + "ms)";
                     OnTaikoStateUpdated(TaikoState);
 
-                    if ((c.R == 146 && c.G == 107 && c.B == 3))
+                    if (isSpinner(c))
                     {
                         if (lastInput == Inputs.INPUT_R)
                         {
@@ -237,7 +212,7 @@ namespace OsuNeuralNet
                         }
                         CountNote(swLoop.ElapsedMilliseconds);
                     }
-                    else if (c.R > 120 && c.R > c.B)
+                    else if (isRed(c) || isRed(cb))
                     {
                         if (lastInput != Inputs.INPUT_R)
                         {
@@ -245,7 +220,7 @@ namespace OsuNeuralNet
                         }
                         CountNote(swLoop.ElapsedMilliseconds);
                     }
-                    else if (c.B > 120 && c.B > c.R)
+                    else if (isBlue(c) || isBlue(cb))
                     {
                         if (lastInput != Inputs.INPUT_B)
                         {
@@ -270,6 +245,23 @@ namespace OsuNeuralNet
                 Thread.Sleep(1);
             }
         }
+
+        public bool isBlue(Color c)
+        {
+            return (c.B > 120 && c.B > c.R);
+        }
+
+        public bool isRed(Color c)
+        {
+            return (c.R > 120 && c.R > c.B);
+        }
+
+        public bool isSpinner(Color c)
+        {
+            return (c.R == 146 && c.G == 107 && c.B == 3);
+        }
+
+
 
         public void SendRed()
         {

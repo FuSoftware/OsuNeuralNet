@@ -35,10 +35,13 @@ namespace OsuNeuralNet
 
         public void UpdatePanelColor(object sender, EventArgs e)
         {
-            this.Invoke((MethodInvoker)delegate
+            if (this.IsHandleCreated)
             {
-                UpdatePanelColor(((TaikoBot.PanelColorUpdatedEventArgs)e).c);
-            });
+                this.Invoke((MethodInvoker)delegate
+                {
+                    UpdatePanelColor(((TaikoBot.PanelColorUpdatedEventArgs)e).c);
+                });
+            }
         }
 
         public void UpdateLastKey(object sender, EventArgs e)
@@ -58,9 +61,7 @@ namespace OsuNeuralNet
                     LabelRunning.Text = ((TaikoBot.TaikoStateUpdatedEventArgs)e).State;
                 });
             }
-            
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {

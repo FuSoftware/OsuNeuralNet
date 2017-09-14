@@ -43,7 +43,6 @@ namespace OsuNeuralNet
 
         public VideoProcessing()
         {
-            
         }
 
         public void Start(int[][] pixels)

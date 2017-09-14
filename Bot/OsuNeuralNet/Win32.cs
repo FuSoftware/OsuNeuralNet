@@ -26,6 +26,16 @@ sealed class Win32
         return color;
     }
 
+    static public Color GetPixelColorShort(IntPtr hdc, int x, int y)
+    {
+        uint a = GetPixel(hdc, x, y);
+        uint f = 0xFF000000;
+        return Color.FromArgb((int)(a | f));
+    }
+
+
+    
+
     static public Color GetPixelColor(int x, int y)
     {
         IntPtr hdc = GetDC(IntPtr.Zero);
@@ -41,7 +51,8 @@ sealed class Win32
     public static extern int BitBlt(IntPtr hDC, int x, int y, int nWidth, int nHeight, IntPtr hSrcDC, int xSrc, int ySrc, int dwRop);
 
     static Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
-    static public Color GetColorAt(Point location)
+
+    static public Color GetColorAt(int x, int y)
     {
         using (Graphics gdest = Graphics.FromImage(screenPixel))
         {
@@ -49,7 +60,7 @@ sealed class Win32
             {
                 IntPtr hSrcDC = gsrc.GetHdc();
                 IntPtr hDC = gdest.GetHdc();
-                int retval = BitBlt(hDC, 0, 0, 1, 1, hSrcDC, location.X, location.Y, (int)CopyPixelOperation.SourceCopy);
+                int retval = BitBlt(hDC, 0, 0, 1, 1, hSrcDC, x, y, (int)CopyPixelOperation.SourceCopy);
                 gdest.ReleaseHdc();
                 gsrc.ReleaseHdc();
             }
@@ -57,10 +68,9 @@ sealed class Win32
         return screenPixel.GetPixel(0, 0);
     }
 
-    static public Color GetColorAt(IntPtr dc, int x, int y)
+    static public Color GetColorAt(Point location)
     {
-        int a = (int)GetPixel(dc, x, y);
-        return Color.FromArgb((int)(a | 0xFF000000));
+        return GetColorAt(location.X, location.Y);
     }
 
     [DllImport("user32.dll", SetLastError = true)]
